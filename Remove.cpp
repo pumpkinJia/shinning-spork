@@ -3,7 +3,7 @@
 #include <vector>
 #include <pcl/io/pcd_io.h>  
 #include <pcl/point_types.h>  
-#include <pcl/kdtree/kdtree_flann.h>  //kdtree½üÁÚËÑË÷
+#include <pcl/kdtree/kdtree_flann.h>  //kdtreeè¿‘é‚»æœç´¢
 #include <pcl/filters/extract_indices.h>
 #include <boost/thread/thread.hpp>
 #include <pcl/visualization/pcl_visualizer.h>
@@ -12,25 +12,25 @@ using namespace std;
 
 int main()
 {
-	//----------------------¶ÁÈ¡µãÔÆ---------------------
+	//----------------------è¯»å–ç‚¹äº‘---------------------
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	if (pcl::io::loadPCDFile<pcl::PointXYZ>("Transformed.pcd", *cloud) == -1)
 	{
 		PCL_ERROR("Cloudn't read file!");
 		return -1;
 	}
-	//---------------------KDÊ÷°ë¾¶ËÑË÷-------------------
+	//---------------------KDæ ‘åŠå¾„æœç´¢-------------------
 	pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
 	kdtree.setInputCloud(cloud);
-	vector<int> pointIdxRadiusSearch;          //±£´æÃ¿¸ö½üÁÚµãµÄË÷Òı
-	vector<float> pointRadiusSquaredDistance;  //±£´æÃ¿¸ö½üÁÚµãÓë²éÕÒµãÖ®¼äµÄÅ·Ê½¾àÀëÆ½·½
+	vector<int> pointIdxRadiusSearch;          //ä¿å­˜æ¯ä¸ªè¿‘é‚»ç‚¹çš„ç´¢å¼•
+	vector<float> pointRadiusSquaredDistance;  //ä¿å­˜æ¯ä¸ªè¿‘é‚»ç‚¹ä¸æŸ¥æ‰¾ç‚¹ä¹‹é—´çš„æ¬§å¼è·ç¦»å¹³æ–¹
 	vector<int> total_index;
-	float radius = 0.0005;//ÈôÁ½µãÖ®¼äµÄ¾àÀëÎª0.000001ÔòÈÏÎªÊÇÖØºÏµã
-	/*ÈôÄ³Ò»µãÔÚ0.000001ÁìÓòÄÚ²»Ö¹Æä±¾ÉíÒ»¸öµã£¬ÔòÈÏÎªÆäÓĞÖØ¸´µã¡£
-	½«ÖØ¸´µãµÄË÷Òı¼ÇÂ¼ÏÂÀ´£¬ÓÉÓÚºóĞøÒÔ´ËÖØ¸´µãÎª²éÑ¯µãËÑË÷Ê±£¬´ËÊ±ÕâÒ»µãÒ²»á±»¶¨ÒåÎªÖØ¸´µã£¬
-	µ«pointIdxRadiusSearchÖĞ¶¼ÊÇÉıĞòÅÅÁĞµÄ£¬¹Ê´ÓpointIdxRadiusSearchÖĞµÄµÚ¶ş¸öµãµÄË÷Òı¿ªÊ¼¼ÇÂ¼£¬
-	ÕâÑù¿ÉÒÔ±£Ö¤½ö½öÉ¾³ıÖØ¸´µÄµã£¬±£ÁôµÚÒ»¸öµã*/
-	for (size_t i = 0; i < cloud->size(); ++i)//¶ÔcloudÖĞµÄÃ¿¸öµãÓëÁÚÓòÄÚµÄµã½øĞĞ±È½Ï
+	float radius = 0.0005;//è‹¥ä¸¤ç‚¹ä¹‹é—´çš„è·ç¦»ä¸º0.000001åˆ™è®¤ä¸ºæ˜¯é‡åˆç‚¹
+	/*è‹¥æŸä¸€ç‚¹åœ¨0.000001é¢†åŸŸå†…ä¸æ­¢å…¶æœ¬èº«ä¸€ä¸ªç‚¹ï¼Œåˆ™è®¤ä¸ºå…¶æœ‰é‡å¤ç‚¹ã€‚
+	å°†é‡å¤ç‚¹çš„ç´¢å¼•è®°å½•ä¸‹æ¥ï¼Œç”±äºåç»­ä»¥æ­¤é‡å¤ç‚¹ä¸ºæŸ¥è¯¢ç‚¹æœç´¢æ—¶ï¼Œæ­¤æ—¶è¿™ä¸€ç‚¹ä¹Ÿä¼šè¢«å®šä¹‰ä¸ºé‡å¤ç‚¹ï¼Œ
+	ä½†pointIdxRadiusSearchä¸­éƒ½æ˜¯å‡åºæ’åˆ—çš„ï¼Œæ•…ä»pointIdxRadiusSearchä¸­çš„ç¬¬äºŒä¸ªç‚¹çš„ç´¢å¼•å¼€å§‹è®°å½•ï¼Œ
+	è¿™æ ·å¯ä»¥ä¿è¯ä»…ä»…åˆ é™¤é‡å¤çš„ç‚¹ï¼Œä¿ç•™ç¬¬ä¸€ä¸ªç‚¹*/
+	for (size_t i = 0; i < cloud->size(); ++i)//å¯¹cloudä¸­çš„æ¯ä¸ªç‚¹ä¸é‚»åŸŸå†…çš„ç‚¹è¿›è¡Œæ¯”è¾ƒ
 	{
 		pcl::PointXYZ searchPoint = cloud->points[i];
 
@@ -45,29 +45,29 @@ int main()
 			}
 		}
 	}
-	//-----------------------É¾³ıÖØ¸´Ë÷Òı-----------------------
-	sort(total_index.begin(), total_index.end());//½«Ë÷Òı½øĞĞÅÅĞò
-	total_index.erase(unique(total_index.begin(), total_index.end()), total_index.end());//½«Ë÷ÒıÖĞµÄÖØ¸´Ë÷ÒıÈ¥³ı
+	//-----------------------åˆ é™¤é‡å¤ç´¢å¼•-----------------------
+	sort(total_index.begin(), total_index.end());//å°†ç´¢å¼•è¿›è¡Œæ’åº
+	total_index.erase(unique(total_index.begin(), total_index.end()), total_index.end());//å°†ç´¢å¼•ä¸­çš„é‡å¤ç´¢å¼•å»é™¤
 
-	//-------------------¸ù¾İË÷ÒıÉ¾³ıÖØ¸´µÄµã-------------------
+	//-------------------æ ¹æ®ç´¢å¼•åˆ é™¤é‡å¤çš„ç‚¹-------------------
 	pcl::PointIndices::Ptr outliners(new pcl::PointIndices());
 	outliners->indices.resize(total_index.size());
 	for (size_t i = 0; i < total_index.size(); i++)
 	{
 		outliners->indices[i] = total_index[i];
 	}
-	cout << "ÖØ¸´µãÔÆÉ¾³ıÍê±Ï£¡£¡£¡" << endl;
-	//-------------------ÌáÈ¡É¾³ıÖØ¸´µãÖ®ºóµÄµãÔÆ--------------
+	cout << "é‡å¤ç‚¹äº‘åˆ é™¤å®Œæ¯•ï¼ï¼ï¼" << endl;
+	//-------------------æå–åˆ é™¤é‡å¤ç‚¹ä¹‹åçš„ç‚¹äº‘--------------
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::ExtractIndices<pcl::PointXYZ> extract;
 	extract.setInputCloud(cloud);
 	extract.setIndices(outliners);
-	extract.setNegative(true);//ÉèÖÃÎªtrueÔò±íÊ¾±£´æË÷ÒıÖ®ÍâµÄµã
+	extract.setNegative(true);//è®¾ç½®ä¸ºtrueåˆ™è¡¨ç¤ºä¿å­˜ç´¢å¼•ä¹‹å¤–çš„ç‚¹
 	extract.filter(*cloud_filtered);
-	cout << "Ô­Ê¼µãÔÆÖĞµãµÄ¸öÊıÎª£º" << cloud->points.size() << endl;
-	cout << "É¾³ıµÄÖØ¸´µãµÄ¸öÊıÎª:" << total_index.size() << endl;
-	cout << "È¥ÖØÖ®ºóµãµÄ¸öÊıÎª:" << cloud_filtered->points.size() << endl;
-	//-------------------------¿ÉÊÓ»¯-------------------------
+	cout << "åŸå§‹ç‚¹äº‘ä¸­ç‚¹çš„ä¸ªæ•°ä¸ºï¼š" << cloud->points.size() << endl;
+	cout << "åˆ é™¤çš„é‡å¤ç‚¹çš„ä¸ªæ•°ä¸º:" << total_index.size() << endl;
+	cout << "å»é‡ä¹‹åç‚¹çš„ä¸ªæ•°ä¸º:" << cloud_filtered->points.size() << endl;
+	//-------------------------å¯è§†åŒ–-------------------------
 	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
 	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color(cloud_filtered, 0, 255, 0); // green
 
